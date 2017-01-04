@@ -5,8 +5,9 @@ using namespace CommonSettings;
 //---------------------------------------------------------------------------
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	ChangeWindowMode(TRUE);//ウィンドウモードで起動//FALSEだとフルスクリーン
+	ChangeWindowMode(true);//ウィンドウモードで起動//FALSEだとフルスクリーン
 	SetGraphMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32);//ウィンドウサイズ
+	SetDoubleStartValidFlag(true);
 	if (DxLib_Init() == -1) {
 		return -1;
 	}
