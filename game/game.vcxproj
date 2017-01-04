@@ -86,14 +86,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Convenient.cpp" />
     <ClCompile Include="Form.cpp" />
     <ClCompile Include="InputDevice.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ColorList.h" />
-    <ClInclude Include="Convenient.h" />
     <ClInclude Include="Form.h" />
     <ClInclude Include="CommonSettings.h" />
     <ClInclude Include="InputDevice.h" />
