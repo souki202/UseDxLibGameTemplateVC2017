@@ -1,16 +1,16 @@
-#include "MyRand.h"
-std::random_device MyRandom::rnd;
-std::mt19937 MyRandom::mt(rnd());
-MyRandom::MyRandom()
+#include "Random.h"
+std::random_device Random::rnd;
+std::mt19937 Random::mt(rnd());
+Random::Random()
 {
 	offset = 0;
 }
 
-MyRandom::~MyRandom()
+Random::~Random()
 {
 }
 
-int MyRandom::Generate(int min, int max)
+int Random::Generate(int min, int max)
 {
 	if (min < 0) {
 		offset = min;
