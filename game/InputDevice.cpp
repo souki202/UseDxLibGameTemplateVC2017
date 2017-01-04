@@ -20,7 +20,7 @@ InputDevice::Keyboard::~Keyboard()
 
 // キーの入力状態更新
 void InputDevice::Keyboard::Update()
-{             
+{
 	timer.Update();
 
 	GetHitKeyStateAll(m_isPushKey);  // 全てのキーの入力状態を得る
@@ -128,14 +128,6 @@ void InputDevice::Mouse::Update()
 	GetMousePoint(&m_position.first, &m_position.second);
 }
 
-
-InputDevice::JoyPad::JoyPad()
-{
-}
-
-InputDevice::JoyPad::~JoyPad()
-{
-}
 //JoyKeyに関する関数
 /*
 使い方
@@ -145,11 +137,23 @@ JOYPAD2　は　 2p
 
 例:もしJOYPAD1の左を押す判定がほしければ
 
-	if(Joypad_Get(JOYPAD1*BUTTON_LEFT) == 0){
-		//処理
-	}
+if(GetPressFrame(JOYPAD1*BUTTON_LEFT) == 0){
+//処理
+}
 
 */
+/*
+殆ど前のテンプレのまま放置しているので注意。
+Pad使うDXライブラリ使用ゲームをほぼ見ないので。
+*/
+InputDevice::JoyPad::JoyPad()
+{
+}
+
+InputDevice::JoyPad::~JoyPad()
+{
+}
+
 void InputDevice::JoyPad::Update()
 {
 	//Joypad1を使う

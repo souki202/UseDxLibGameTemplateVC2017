@@ -12,6 +12,7 @@ Random::~Random()
 
 int Random::Generate(int min, int max)
 {
+	if (min > max) std::swap(min, max);
 	if (min < 0) {
 		offset = min;
 		std::uniform_int_distribution<> rn(0, max - offset);
