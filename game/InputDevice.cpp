@@ -134,13 +134,14 @@ void InputDevice::Touch::update()
 	int num = GetTouchInputNum();
 	int id;
 	int x, y;
+	std::map<int, Info> newTouches;
 	for (int i = 0; i < num; i++) {
 		GetTouchInput(i, &x, &y, &id);
 
 		auto it = touches.find(id);
 		//新規のタッチ
 		if (it == touches.end()) {
-			touches.insert(std::make_pair(id, Info(x, y, timer.getDeltaTime())));
+			newTouches.insert(std::make_pair(id, Info(x, y, timer.getDeltaTime())));
 		}
 		else { //すでにある
 			int beforeX = it->second.nowPos.first, beforeY = it->second.nowPos.second;
@@ -150,6 +151,8 @@ void InputDevice::Touch::update()
 			it->second.deltaPos.second = y - beforeY;
 			it->second.frame++;
 			it->second.time += timer.getDeltaTime();
+			newTouches.insert(std::make_pair(id, std::move(it->second)));
 		}
 	}
+	touches = std::move(newTouches);
 }
