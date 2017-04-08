@@ -10,7 +10,7 @@ public:
 	Form();
 	~Form();
 
-	bool Update();
+	bool update();
 
 private:
 

@@ -17,16 +17,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// 描画先を裏画面に変更
 	SetDrawScreen(DX_SCREEN_BACK);
 	while (1) {
-		if (ProcessMessage() != 0 || keyInput.GetPressFrame(KEY_INPUT_ESCAPE)) {
+		if (ProcessMessage() != 0 || keyInput.getPressFrame(KEY_INPUT_ESCAPE)) {
 			break;//ウィンドウの×ボタンまたはEscキー押されたらループを抜ける
 		}
 		ClearDrawScreen();
 
 		//キーボード, マウスの状態を更新
-		keyInput.Update();
-		mouseInput.Update();
+		keyInput.update();
+		mouseInput.update();
+		touchInput.update();
 
-		if (!Fmain.Update()) {
+		if (!Fmain.update()) {
 			break;
 		}
 		ScreenFlip();//裏画面を反映

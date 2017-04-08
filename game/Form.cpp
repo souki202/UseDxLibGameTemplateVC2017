@@ -8,7 +8,7 @@ Form::~Form()
 {
 }
 
-bool Form::Update()
+bool Form::update()
 {
 	DrawFormatString(100, 100, 0xffffff, "ゲーム画面です。");
 	

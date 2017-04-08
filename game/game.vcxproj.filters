@@ -48,4 +48,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt">
+      <Filter>リソース ファイル</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

@@ -4,25 +4,25 @@
 class Timer {
 public:
 	Timer() {
-		Reset();
+		reset();
 	}
 	~Timer() {}
 
-	void Update() {
+	void update() {
 		lastTime = nowTime;
 		nowTime = std::chrono::system_clock::now();
 	}
 
-	void Reset() {
+	void reset() {
 		nowTime = std::chrono::system_clock::now();
 		initTime = lastTime = nowTime;
 	}
 
-	int GetDeltaTime() {
+	int getDeltaTime() {
 		return static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - lastTime).count());
 	}
 
-	int GetElapsedTime() {
+	int getElapsedTime() {
 		return static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - initTime).count());
 	}
 

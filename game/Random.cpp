@@ -10,7 +10,7 @@ Random::~Random()
 {
 }
 
-int Random::Generate(int min, int max)
+int Random::generate(int min, int max)
 {
 	if (min > max) std::swap(min, max);
 	if (min < 0) {
