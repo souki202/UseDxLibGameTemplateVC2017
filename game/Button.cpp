@@ -89,11 +89,13 @@ bool Button::onMouse()
 {
 	int x = INT_MIN;
 	int y = INT_MIN;
+	int pressPhase = mouseInput.getLeftPressPhase();
 	//ƒ^ƒbƒ`—Dæ
 	auto t = touchInput.getFirstTouch();
 	if (t != nullptr) {
 		x = t->nowPos.first;
 		y = t->nowPos.second;
+		pressPhase = t->phase;
 	}
 	else {
 		x = mouseInput.getPosition().first;
@@ -135,8 +137,8 @@ bool Button::onClinking()
 		pressPhase = t->phase;
 	}
 	bool b = onMouse();
-	if (b
-		&&(pressPhase == InputDevice::BEGAN
+	if (b && ((!firstClick && pressPhase == InputDevice::BEGAN) || firstClick)
+		&& (pressPhase == InputDevice::BEGAN
 			|| pressPhase == InputDevice::IN_THE_MIDDLE
 			|| pressPhase == InputDevice::ENDED)) {
 		if (!firstClick) firstClick = id;
