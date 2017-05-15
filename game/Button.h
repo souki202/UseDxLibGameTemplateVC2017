@@ -2,7 +2,7 @@
 #include "DxLib.h"
 #include <string>
 #include <memory>
-#include <boost\any.hpp>
+//#include <boost\any.hpp>
 #include "InputDevice.h"
 #include "Random.h"
 
@@ -35,7 +35,7 @@ public:
 
 	void hoverAlpha(int notHover, int hover) { alpha[0] = notHover; alpha[1] = hover; };
 
-	virtual int executeClickEvent(const boost::any& v...) { return 0; };
+	//virtual int executeClickEvent(const boost::any& v...) { return 0; };
 	virtual int executeClickEvent() { return 0; };
 protected:
 	std::pair<int, int> size;
