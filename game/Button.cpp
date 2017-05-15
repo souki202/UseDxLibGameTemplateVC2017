@@ -101,7 +101,7 @@ bool Button::onMouse()
 		x = mouseInput.getPosition().first;
 		y = mouseInput.getPosition().second;
 	}
-	if ((!firstClick || firstClick == id) && (!panelId || panelId == Panel::getOnMousePanelId())
+	if ((!firstClick || firstClick == id) && (!panelId /*|| panelId == Panel::getOnMousePanelId()*/)
 		&& pos.first - size.first / 2 <= x && x <= pos.first + size.first / 2
 		&& pos.second - size.second / 2 <= y && y <= pos.second + size.second / 2) {
 		isHover = true;
