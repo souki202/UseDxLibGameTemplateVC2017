@@ -1,4 +1,5 @@
 #include "InputDevice.h"
+#include "Button.h"
 
 InputDevice::Keyboard::Keyboard()
 {
@@ -75,12 +76,13 @@ bool InputDevice::Keyboard::getIsUpdate(int keyCode)
 //ここからマウス
 InputDevice::Mouse::Mouse()
 {
-	m_leftPress.first = 0;
-	m_leftPress.second = 0;
-	m_rightPress.first = 0;
-	m_rightPress.second = 0;
-	m_middlePress.first = 0;
-	m_middlePress.second = 0;
+	for (auto& x : press) {
+		x.first = 0;
+		x.second = 0;
+	}
+	for (auto& x : phases) {
+		x = INVALID;
+	}
 	m_position.first = 0;
 	m_position.second = 0;
 	m_lastPosition.first = 0;
@@ -95,37 +97,32 @@ void InputDevice::Mouse::update()
 {
 	timer.update();
 
-	//力技だけど仕方ない MOUSE_INPUT_8とか0x0080やで･･･
-	if ((GetMouseInput() & MOUSE_INPUT_LEFT) != 0) {
-		m_leftPress.first++;
-		m_leftPress.second += static_cast<int>(timer.getDeltaTime());
-	}
-	else {
-		m_leftPress.first = 0;
-		m_leftPress.second = 0;
-	}
-
-	if ((GetMouseInput() & MOUSE_INPUT_RIGHT) != 0) {
-		m_rightPress.first++;
-		m_rightPress.second += static_cast<int>(timer.getDeltaTime());
-	}
-	else {
-		m_rightPress.first = 0;
-		m_rightPress.second = 0;
-	}
-
-
-	if ((GetMouseInput() & MOUSE_INPUT_MIDDLE) != 0) {
-		m_middlePress.first++;
-		m_middlePress.second += static_cast<int>(timer.getDeltaTime());
-	}
-	else {
-		m_middlePress.first = 0;
-		m_middlePress.second = 0;
-	}
-
 	m_lastPosition = m_position;
 	GetMousePoint(&m_position.first, &m_position.second);
+	for (int i = 0; i < 3; i++) {
+		if ((GetMouseInput() & buttons[i]) != 0) {
+			if (phases[i] == BEGAN) {
+				phases[i] = IN_THE_MIDDLE;
+				if (!i) m_leftClickInitPosition = m_position;
+			}
+			else if (phases[i] != IN_THE_MIDDLE) {
+				phases[i] = BEGAN;
+			}
+			press[i].first++;
+			press[i].second += static_cast<int>(timer.getDeltaTime());
+		}
+		else {
+			if (phases[i] == ENDED) {
+				phases[i] = INVALID;
+				if (!i) {
+					Button::resetClick();
+				}
+			}
+			else if (phases[i] != INVALID) phases[i] = ENDED;
+			press[i].first = 0;
+			press[i].second = 0;
+		}
+	}
 }
 
 void InputDevice::Touch::update()
@@ -135,24 +132,58 @@ void InputDevice::Touch::update()
 	int id;
 	int x, y;
 	std::map<int, Info> newTouches;
-	for (int i = 0; i < num; i++) {
-		GetTouchInput(i, &x, &y, &id);
 
-		auto it = touches.find(id);
-		//新規のタッチ
-		if (it == touches.end()) {
-			newTouches.insert(std::make_pair(id, Info(x, y, timer.getDeltaTime())));
+	for (int i = 0; i < num; i++) {
+		GetTouchInput(i, &x, &y, &id, NULL);
+		//画面外は修正
+		if (x < 0) x = 0;
+		else if (x > CommonSettings::WINDOW_WIDTH) x = CommonSettings::WINDOW_WIDTH;
+		if (y < 0) y = 0;
+		else if (y > CommonSettings::WINDOW_HEIGHT) y = CommonSettings::WINDOW_HEIGHT;
+		keys.insert(std::make_pair(id, std::make_pair(x, y)));
+	}
+
+	for (auto& touch : touches) {
+		if (touch.second.phase == ENDED) {
+			continue;
 		}
-		else { //すでにある
-			int beforeX = it->second.nowPos.first, beforeY = it->second.nowPos.second;
-			it->second.nowPos.first = x;
-			it->second.nowPos.second = y;
-			it->second.deltaPos.first = x - beforeX;
-			it->second.deltaPos.second = y - beforeY;
-			it->second.frame++;
-			it->second.time += timer.getDeltaTime();
-			newTouches.insert(std::make_pair(id, std::move(it->second)));
+
+		//既存のタッチか調べる
+		auto it = keys.find(touch.first);
+		//ある
+		if (it != keys.end()) {
+			int beforeX = touch.second.nowPos.first, beforeY = touch.second.nowPos.second;
+			int lastDeltaPosX = touch.second.deltaPos.first;
+			touch.second.deltaPos.first = it->second.first - beforeX;
+			touch.second.deltaPos.second = it->second.second - beforeY;
+			touch.second.nowPos.first = it->second.first;
+			touch.second.nowPos.second = it->second.second;
+
+			touch.second.frame++;
+			touch.second.time += timer.getDeltaTime();
+			touch.second.phase = IN_THE_MIDDLE;
+			newTouches.insert(std::make_pair(touch.first, std::move(touch.second)));
+			keys.erase(it);
+			continue;
+		}
+		else { //無い。タッチ終了
+			touch.second.phase = ENDED;
+			newTouches.insert(std::make_pair(touch.first, std::move(touch.second)));
 		}
 	}
+
+	//残ったkeyは新規
+	if (!num && keys.empty() && touches.empty()) firstTouchId = -1;
+	for (auto& key : keys) {
+		if (firstTouchId == -1) {
+			firstTouchId = key.first;
+		}
+		newTouches.insert(std::make_pair(key.first, Info(key.second.first, key.second.second, timer.getDeltaTime())));
+	}
+
 	touches = std::move(newTouches);
+
+	firstTouch = touches.find(firstTouchId);
+	if (firstTouchId == -1) {
+	}
 }

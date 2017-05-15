@@ -1,9 +1,13 @@
 #pragma once
 //----------------------------------------------------------
+#define _USE_MATH_DEFINES
 #include <array>
 #include <map>
+#include <cmath>
+#include <algorithm>
 #include "DxLib.h"
 #include "Timer.h"
+#include "CommonSettings.h"
 
 #define USE_INPUTDEVICE_DEF
 
@@ -12,8 +16,15 @@
 #define mouseInput InputDevice::Mouse::getInstance()
 #define touchInput InputDevice::Touch::getInstance()
 #endif
+
+class Button;
+class Panel;
 //----------------------------------------------------------
 namespace InputDevice {
+	enum PressPhase {
+		BEGAN, IN_THE_MIDDLE, ENDED, INVALID
+	};
+
 	class Keyboard {
 	private:
 		Keyboard();
@@ -47,12 +58,16 @@ namespace InputDevice {
 		static Mouse& getInstance() { static Mouse mouse; return mouse; };
 
 		void update();
-		int getLeftPressFrame() { return m_leftPress.first; };
-		int getLeftPressTime() { return m_leftPress.second; };
-		int getRightPressFrame() { return m_rightPress.first; };
-		int getRightPressTime() { return m_rightPress.second; };
-		int getMiddlePressFrame() { return m_middlePress.first; };
-		int getMiddlePressTime() { return m_middlePress.second; };
+		int getLeftPressFrame() { return press[0].first; };
+		int getLeftPressTime() { return press[0].second; };
+		int getLeftPressPhase() { return phases[0]; };
+		const std::pair<int, int>& getLeftClickInitPosition() { return m_leftClickInitPosition; };
+		int getRightPressFrame() { return press[1].first; };
+		int getRightPressTime() { return press[1].second; };
+		int getRightPressPhase() { return phases[1]; };
+		int getMiddlePressFrame() { return press[2].first; };
+		int getMiddlePressTime() { return press[2].second; };
+		int getMiddlePressPhase() { return phases[2]; };
 		int getWheelRotateValue() { return GetMouseWheelRotVol(); };	//奥が正, 手前が負
 		const std::pair<int, int>& getPosition() {
 			return m_position;
@@ -62,11 +77,12 @@ namespace InputDevice {
 		};
 	private:
 		Timer timer;
-		std::pair<int, int> m_leftPress; //フレーム, 時間
-		std::pair<int, int> m_rightPress;
-		std::pair<int, int> m_middlePress;
+		std::array<std::pair<int, int>, 3> press;//フレーム, 時間
 		std::pair<int, int> m_position;
+		std::pair<int, int> m_leftClickInitPosition;
 		std::pair<int, int> m_lastPosition;
+		std::array<PressPhase, 3> phases;
+		int buttons[3] = { MOUSE_INPUT_LEFT , MOUSE_INPUT_RIGHT , MOUSE_INPUT_MIDDLE };
 	};
 
 	class Touch {
@@ -82,22 +98,39 @@ namespace InputDevice {
 				initPos.second = y;
 				nowPos.first = x;
 				nowPos.second = y;
+				deltaPos.first = 0;
+				deltaPos.second = 0;
 				frame = 1;
 				this->time = time;
+				phase = BEGAN;
 			};
 			std::pair<int, int> initPos;
 			std::pair<int, int> nowPos;
 			std::pair<int, int> deltaPos; //前フレームとの差
 			int frame;
 			int time;
+			int flickDirection = 0; //1左 2右
+			int flickedLine = 0;
+			bool hasNeverFlickYet = true;
+			int initLine;
+			int nowLine;
+			int lastLine;
+			PressPhase phase;
 		};
 
 		static Touch& getInstance() { static Touch touch; return touch; };
 
 		void update();
-		const std::map<int, Info>& getAllTouchInfo() { return touches; };
+		std::map<int, Info>& getAllTouchInfo() { return touches; };
+		const Info* getFirstTouch() {
+			if (firstTouch == touches.end()) return nullptr;
+			return &firstTouch->second;
+		};
 	private:
 		Timer timer;
 		std::map<int, Info> touches;
+		std::map<int, std::pair<int, int>> keys; //ID, 座標
+		int firstTouchId;
+		decltype(touches.find(0)) firstTouch;
 	};
 }
