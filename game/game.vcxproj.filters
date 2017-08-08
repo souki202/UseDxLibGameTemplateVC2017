@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ヘッダー ファイル\SamplePanel">
+      <UniqueIdentifier>{482c82e0-f1d7-490f-8388-fdadadcc2f4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\SamplePanel">
+      <UniqueIdentifier>{b742d6ec-5bfc-419c-8f6c-fb93ce6ef590}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Align">
+      <UniqueIdentifier>{26d6b5e3-8f21-4a22-8cb5-f08cb21479eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Form.h">
@@ -36,6 +45,12 @@
     <ClInclude Include="Button.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>ヘッダー ファイル\SamplePanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Align.h">
+      <Filter>ヘッダー ファイル\Align</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -52,6 +67,9 @@
     </ClCompile>
     <ClCompile Include="Button.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>ソース ファイル\SamplePanel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

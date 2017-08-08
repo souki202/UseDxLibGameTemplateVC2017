@@ -1,6 +1,6 @@
 #include "Random.h"
-std::random_device Random::rnd;
-std::mt19937 Random::mt(rnd());
+std::random_device Random::rd;
+std::mt19937 Random::mt(rd());
 Random::Random()
 {
 	offset = 0;
@@ -20,6 +20,6 @@ int Random::generate(int min, int max)
 	}
 	else {
 		std::uniform_int_distribution<> rn(min, max);
-		return rn(mt) + min;
+		return rn(mt);
 	}
 }

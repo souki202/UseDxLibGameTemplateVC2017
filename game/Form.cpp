@@ -10,6 +10,11 @@ Form::~Form()
 
 bool Form::update()
 {
+	return true;
+}
+
+bool Form::draw()
+{
 	DrawFormatString(100, 100, 0xffffff, "ゲーム画面です。");
 
 	/*
@@ -17,14 +22,15 @@ bool Form::update()
 	*/
 	int pressFrame = keyInput.getPressFrame(KEY_INPUT_SPACE);
 	DrawFormatString(100, 200, 0xffffff, "スペースキーを%dだけ押した。", pressFrame);
-	
+
 	/*
 	マウスサンプル
 	*/
 	int mouseX = mouseInput.getPosition().first;
 	int mouseY = mouseInput.getPosition().second;
 	int leftClickFrame = mouseInput.getLeftPressFrame();
-	DrawFormatString(mouseX, mouseY - 20, 0xffffff, "%dの間、左クリックした。", leftClickFrame);
+	DrawFormatString(mouseX - 100, mouseY - 40, 0xffffff, "%dフレーム左クリック。", leftClickFrame);
+	DrawFormatString(mouseX - 100, mouseY - 20, 0xffffff, "x:%d, y:%d", mouseX, mouseY);
 
 	/*
 	タッチサンプル
@@ -37,5 +43,5 @@ bool Form::update()
 			touch.second.time, touch.second.frame, touch.first);
 	}
 
-	return true;
+	return false;
 }

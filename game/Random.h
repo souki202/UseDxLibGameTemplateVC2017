@@ -1,6 +1,6 @@
 #pragma once
 #include <random>
-#define rand Random::getInstance()
+#define rnd Random::getInstance()
 
 class Random {
 private:
@@ -12,7 +12,7 @@ public:
 	int generate(int min, int max);
 
 private:
-	static std::random_device rnd;
+	static std::random_device rd;
 	static std::mt19937 mt;
 
 	int offset;

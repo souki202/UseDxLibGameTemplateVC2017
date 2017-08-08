@@ -9,7 +9,7 @@ Button::Button(int panelId)
 	img[0] = 0; img[1] = 0;
 	isOn = false;
 	isSwitch = false;
-	id = rand.generate(1, INT_MAX);
+	id = rnd.generate(1, INT_MAX);
 	this->panelId = panelId;
 	switchType = 0;
 	isHover = false;

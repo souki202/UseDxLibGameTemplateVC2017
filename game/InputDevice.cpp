@@ -137,9 +137,9 @@ void InputDevice::Touch::update()
 		GetTouchInput(i, &x, &y, &id, NULL);
 		//âÊñ äOÇÕèCê≥
 		if (x < 0) x = 0;
-		else if (x > CommonSettings::WINDOW_WIDTH) x = CommonSettings::WINDOW_WIDTH;
+		else if (x > CommonSettings::WINDOW_WIDTH) x = static_cast<int>(CommonSettings::WINDOW_WIDTH);
 		if (y < 0) y = 0;
-		else if (y > CommonSettings::WINDOW_HEIGHT) y = CommonSettings::WINDOW_HEIGHT;
+		else if (y > CommonSettings::WINDOW_HEIGHT) y = static_cast<int>(CommonSettings::WINDOW_HEIGHT);
 		keys.insert(std::make_pair(id, std::make_pair(x, y)));
 	}
 
