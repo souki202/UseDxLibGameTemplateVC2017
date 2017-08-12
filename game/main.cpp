@@ -31,7 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		//キーボード, マウスの状態を更新
 		keyInput.update();
-		mouseInput.update();enn
+		mouseInput.update();
 		touchInput.update();
 
 		if (!Fmain.update()) {
