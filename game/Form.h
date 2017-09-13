@@ -1,5 +1,6 @@
 #pragma once
-
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "DxLib.h" //‚b’¼‰º“ˆê‚Å‚¨Šè‚¢@|ƒÖE`jÁ×¯
 #include "CommonSettings.h"
 #include "InputDevice.h"
