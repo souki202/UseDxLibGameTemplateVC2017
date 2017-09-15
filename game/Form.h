@@ -5,6 +5,8 @@
 #include "CommonSettings.h"
 #include "InputDevice.h"
 
+using namespace CommonSettings;
+
 class Form
 {
 public:
