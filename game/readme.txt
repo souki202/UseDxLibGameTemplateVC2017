@@ -1,12 +1,12 @@
-�����DX���C�u�����𗘗p�����Q�[���J���p�̃e���v���[�g�ł��B
+これはDXライブラリを利用したゲーム開発用のテンプレートです。
 
-�L�[�{�[�h��}�E�X����̓��͏��̎擾�́A
-keyInput.�֐���(����);
-mouseInput.�֐���(����);
-�Ŏ��s�ł��܂��B
+キーボードやマウスからの入力情報の取得は、
+keyInput.関数名(引数);
+mouseInput.関数名(引数);
+で実行できます。
 
-��ɈڐA����Android�ɑΉ�������ꍇ�́A�ȉ��̃T�C�g�őΉ����Ă��邩���m�F���܂��傤�B
+後に移植してAndroidに対応させる場合は、以下のサイトで対応しているかを確認しましょう。
 http://dxlib.o.oo7.jp/dxfunc.html
 
-executeClickEvent��boost::any�ł́Aboost���C�u�������K�v�ł��B
-���p�������ꍇ�́Aboost���C�u�����𓱓����AButton�w�b�_���̃C���N���[�h������executeClickEvent�̃R�����g���O���Ɨ��p�\�ɂȂ�܂��B
+executeClickEventのboost::any版は、boostライブラリが必要です。
+利用したい場合は、boostライブラリを導入してプロジェクトの設定をboostを利用できるように変更した後、Buttonヘッダ内のインクルード部分とexecuteClickEventのコメントを外すと利用可能になります。
