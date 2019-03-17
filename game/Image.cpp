@@ -2,7 +2,7 @@
 
 Image::Image()
 {
-	alpha = 255;
+	init();
 }
 
 Image::Image(std::string filePath)
@@ -12,35 +12,105 @@ Image::Image(std::string filePath)
 	init();
 }
 
-Image::Image(std::string filePath, const Align::pos_type & position)
+Image::Image(std::string filePath, const Point & position)
 {
 	setImage(filePath);
 	setPosition(position);
 	init();
 }
 
-Image::Image(int handle)
+Image::Image(const int& handle)
 {
 	setImage(handle);
 	setPosition(std::make_pair(0.f, 0.f));
 	init();
 }
 
-Image::Image(int handle, const Align::pos_type & position)
+Image::Image(int && handle)
+{
+	setImage(std::forward<int>(handle));
+	setPosition(std::make_pair(0.f, 0.f));
+	init();
+}
+
+Image::Image(const int& handle, const Point & position)
 {
 	setImage(handle);
 	setPosition(position);
 	init();
 }
 
+Image & Image::operator=(const Image & rhs)
+{
+	if (this != &rhs) {
+		if (counter) {
+			counter->releaseRef();
+			if (!counter->getCount()) DeleteGraph(img);
+		}
+		counter = rhs.counter;
+		counter->addRef();
+
+		isExternal = rhs.isExternal;
+		img = rhs.img;
+		rawPos = rhs.rawPos;
+		pos = rhs.pos;
+		scrollPos = rhs.scrollPos;
+		vertexes = rhs.vertexes;
+		rawSize = rhs.rawSize;
+		scaledSize = rhs.scaledSize;
+		scale = rhs.scale;
+		angle = rhs.angle;
+		alpha = rhs.alpha;
+		hAlign = rhs.hAlign;
+		vAlign = rhs.vAlign;
+		hasDefaultCollider = rhs.hasDefaultCollider;
+		isPremulti = rhs.isPremulti;
+	}
+	return *this;
+}
+
+Image & Image::operator=(Image && rhs)
+{
+	if (this != &rhs) {
+		if (counter) {
+			counter->releaseRef();
+			if (!counter->getCount()) DeleteGraph(img);
+		}
+		counter = std::move(rhs.counter);
+
+		isExternal = rhs.isExternal;
+		img = rhs.img;
+		rawPos = rhs.rawPos;
+		pos = rhs.pos;
+		scrollPos = rhs.scrollPos;
+		vertexes = rhs.vertexes;
+		rawSize = rhs.rawSize;
+		scaledSize = rhs.scaledSize;
+		scale = rhs.scale;
+		angle = rhs.angle;
+		alpha = rhs.alpha;
+		hAlign = rhs.hAlign;
+		vAlign = rhs.vAlign;
+		hasDefaultCollider = rhs.hasDefaultCollider;
+		isPremulti = rhs.isPremulti;
+	}
+	return *this;
+}
+
 Image::~Image()
 {
-	if (!isExternal) DeleteGraph(img);
+	if (!isExternal) {
+		if (counter) {
+			counter->releaseRef();
+			if (!counter->getCount()) DeleteGraph(img);
+		}
+	}
 }
 
 void Image::init()
 {
 	alpha = 255;
+	counter = std::make_shared<RefCounter>();
 }
 
 void Image::setAlign(const Align::Horizontal & hAlign, const Align::Vertical & vAlign)
@@ -52,12 +122,16 @@ void Image::setAlign(const Align::Horizontal & hAlign, const Align::Vertical & v
 
 void Image::setImage(std::string filePath)
 {
+	SetUsePremulAlphaConvertLoad(isPremulti);
 	img = LoadGraph(filePath.c_str());
+	SetUsePremulAlphaConvertLoad(false);
 	GetGraphSizeF(img, &rawSize.first, &rawSize.second);
 	recalcPosition();
+	loading.updateLoadCount();
+	isExternal = false;
 }
 
-void Image::setImage(int handle)
+void Image::setImage(const int& handle)
 {
 	img = handle;
 	GetGraphSizeF(img, &rawSize.first, &rawSize.second);
@@ -65,19 +139,27 @@ void Image::setImage(int handle)
 	isExternal = true;
 }
 
-void Image::setPosition(const Align::pos_type & position)
+void Image::setImage(int && handle)
+{
+	img = handle;
+	GetGraphSizeF(img, &rawSize.first, &rawSize.second);
+	recalcPosition();
+	isExternal = false;
+}
+
+void Image::setPosition(const Point & position)
 {
 	rawPos = position;
 	recalcPosition();
 }
 
-void Image::setScrollPosition(const Align::pos_type & scroll)
+void Image::setScrollPosition(const Point & scroll)
 {
 	scrollPos = scroll;
 	recalcPosition();
 }
 
-void Image::setScale(const Align::pos_type & scale)
+void Image::setScale(const Point & scale)
 {
 	this->scale = scale;
 	recalcPosition();
@@ -97,21 +179,21 @@ void Image::recalcPosition()
 	pos.first += scrollPos.first;
 	pos.second += scrollPos.second;
 
-	//âÒì]
-	float x[2], y[2]; //0:ç∂è„ 1:âEâ∫
+	//ÂõûËª¢
+	float x[2], y[2]; //0:Â∑¶‰∏ä 1:Âè≥‰∏ã
 	x[0] = pos.first - rawPos.first;
 	x[1] = x[0] + scaledSize.first;
 	y[0] = pos.second - rawPos.second;
 	y[1] = y[0] + scaledSize.second;
 	float s = std::sin(angle);
 	float c = std::cos(angle);
-	vertexes[0].first = x[0] * c - y[0] * s;//ç∂è„
+	vertexes[0].first = x[0] * c - y[0] * s;//Â∑¶‰∏ä
 	vertexes[0].second = x[0] * s + y[0] * c;
-	vertexes[1].first = x[1] * c - y[0] * s;//âEè„
+	vertexes[1].first = x[1] * c - y[0] * s;//Âè≥‰∏ä
 	vertexes[1].second = x[1] * s + y[0] * c;
-	vertexes[2].first = x[1] * c - y[1] * s;//âEâ∫
+	vertexes[2].first = x[1] * c - y[1] * s;//Âè≥‰∏ã
 	vertexes[2].second = x[1] * s + y[1] * c;
-	vertexes[3].first = x[0] * c - y[1] * s;//ç∂â∫
+	vertexes[3].first = x[0] * c - y[1] * s;//Â∑¶‰∏ã
 	vertexes[3].second = x[0] * s + y[1] * c;
 
 	for (auto& x : vertexes) {
@@ -122,7 +204,9 @@ void Image::recalcPosition()
 
 void Image::draw()
 {
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+	calcImageSize();
+	if (isPremulti) SetDrawBlendMode(DX_BLENDMODE_PMA_ALPHA, alpha);
+	else SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
 	DrawModiGraphF(
 		vertexes[0].first, vertexes[0].second,
 		vertexes[1].first, vertexes[1].second,
@@ -134,13 +218,27 @@ void Image::draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
+void Image::drawByVertex(const std::vector<Point>& vertex) const
+{
+	if (isPremulti) SetDrawBlendMode(DX_BLENDMODE_PMA_ALPHA, alpha);
+	else SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+	DrawModiGraphF(
+		vertex[0].first, vertex[0].second,
+		vertex[1].first, vertex[1].second,
+		vertex[2].first, vertex[2].second,
+		vertex[3].first, vertex[3].second,
+		img, true
+	);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+}
+
 void Image::update()
 {
 }
 
 bool Image::getIsOutOfWindow()
 {
-	//Ç¢Ç∏ÇÍÇ©ÇÃì_Ç™âÊñ ì‡Ç»ÇÁâfÇ¡ÇƒÇ¢ÇÈ
+	//„ÅÑ„Åö„Çå„Åã„ÅÆÁÇπ„ÅåÁîªÈù¢ÂÜÖ„Å™„ÇâÊò†„Å£„Å¶„ÅÑ„Çã
 	bool isOk = false;
 	for (auto& x : vertexes) {
 		if (0 < x.first) {
@@ -171,4 +269,15 @@ bool Image::getIsOutOfWindow()
 	if (isOk) return true;
 
 	return false;
+}
+
+void Image::calcImageSize()
+{
+	if (!rawSize.first || !rawSize.second) {
+		GetGraphSizeF(img, &rawSize.first, &rawSize.second);
+		//„Å°„Çá„ÅÜ„Å©„É≠„Éº„ÉâÁµÇ‰∫Ü
+		if (rawSize.first && rawSize.second) {
+			recalcPosition();
+		}
+	}
 }

@@ -1,10 +1,10 @@
 #pragma once
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <vector>
 #include "DxLib.h" //C’¼‰º‚ÉDxLib_‚È‚ñ‚¿‚á‚ç‚ð“ü‚ê‚Ä‚Ë
 #include "CommonSettings.h"
 #include "InputDevice.h"
-
 using namespace CommonSettings;
 
 class Form

@@ -1,55 +1,45 @@
 #pragma once
-#include "DxLib.h"
-#include <string>
-#include <memory>
-//#include <boost\any.hpp>
-#include "InputDevice.h"
-#include "Random.h"
+#include "ButtonSubject.h"
+#include "MouseListener.h"
+#include "HaveUuid.h"
+#include "Image.h"
 
 class Panel;
 
-class Button {
+class Button : public MouseListener, public ButtonSubject , public HaveUuid {
 public:
-	Button(int panelId);
-	virtual ~Button();
-
-	void setImage(const std::string& filePath, bool isSwitch = false, bool isDivHorizonal = false, bool isOn = false);
-	void setImage(int fileHandle, bool isSwitch = false, bool isDivHorizonal = false, bool isOn = false);
-	virtual void draw();
-	void setPosition(float posX, float posY) { pos.first = posX; pos.second = posY; };
-	void setPosition(int posX, int posY) { pos.first = static_cast<float>(posX); pos.second = static_cast<float>(posY); };
-	virtual bool onMouse();
-	virtual bool onClick();
-	virtual bool onClinking();
-	const std::pair<int, int>& getSize() { return size; };
-	const std::pair<float, float>& getPosition() { return pos; };
-	void setSwitchType(int type) { switchType = type; }; //0: クリック後にonoff 1:クリック中に変化
-	void setIsOn(bool b) { isOn = b; };
-
-	static void resetClick() {
-		firstClick = 0; 
-		clickingId = 0;
+	enum class State {
+		NORMAL, HOVER, PRESS, INVALID,
 	};
-	static int getClickingId() { return clickingId; };
-	int getId() { return id; };
 
-	void hoverAlpha(int notHover, int hover) { alpha[0] = notHover; alpha[1] = hover; };
+	Button() : MouseListener(), ButtonSubject(), HaveUuid() {};
+	Button(const Panel* panel);
+	virtual ~Button() {};
+	
+	virtual void draw() { buttons[static_cast<int>(nowState)].draw(); };
 
-	//virtual int executeClickEvent(const boost::any& v...) { return 0; };
-	virtual int executeClickEvent() { return 0; };
+	virtual void onMouse(const MouseEvent& e) { nowState = State::HOVER; };
+	virtual void onClick(const MouseEvent& e) { nowState = State::PRESS; };
+	virtual void onPress(const MouseEvent& e) { nowState = State::PRESS; };
+	virtual void onDrag(const MouseEvent& e) { nowState = State::PRESS; };
+	virtual void onRelease(const MouseEvent& e) { nowState = State::HOVER; call(e); };
+	virtual void onLeave(const MouseEvent& e) { nowState = State::NORMAL; };
+
+	virtual bool isOnMouse(int x, int y);
+	virtual bool isOnMouse(const std::pair<int, int>& pos) { return isOnMouse(pos.first, pos.second); };
+
+	void setAlign(const Align::Horizontal& hAlign) { for (auto& btn: buttons) btn.setAlign(hAlign); };
+	void setAlign(const Align::Vertical& vAlign) { for (auto& btn : buttons) btn.setAlign(vAlign); };
+	void setAlign(const Align::Horizontal& hAlign, const Align::Vertical& vAlign) { for (auto& btn : buttons) btn.setAlign(hAlign, vAlign); };
+	void setPosition(float x, float y) { for (auto& btn : buttons) btn.setPosition(std::make_pair(x, y)); };
+	void setPosition(const Point& position) { for (auto& btn : buttons) btn.setPosition(position); };
+	void setScale(float x, float y) { for (auto& btn : buttons) btn.setScale(x, y); };
+	void setScale(const Point& scale) { for (auto& btn : buttons) btn.setScale(scale); };
+	void setAlpha(int alpha) { for (auto& btn : buttons) btn.setAlpha(alpha); }; //0~255
 protected:
-	std::pair<int, int> size;
-	std::pair<float, float> pos;
-	int img[2];
-	bool isOn, isSwitch;
-	int switchType;
+	std::array<Image, static_cast<int>(State::INVALID)> buttons;
 
-	std::array<int, 2> alpha;
-	bool isHover;
 private:
-	int id;
-	int panelId;
-	bool isExternal;
-	static int firstClick;
-	static int clickingId;
+	State nowState = State::NORMAL;
+	const Panel* panel = nullptr;
 };

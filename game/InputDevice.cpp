@@ -1,5 +1,4 @@
 #include "InputDevice.h"
-#include "Button.h"
 
 InputDevice::Keyboard::Keyboard()
 {
@@ -19,20 +18,20 @@ InputDevice::Keyboard::~Keyboard()
 {
 }
 
-// ƒL[‚Ì“ü—Íó‘ÔXV
+// ã‚­ãƒ¼ã®å…¥åŠ›çŠ¶æ…‹æ›´æ–°
 void InputDevice::Keyboard::update()
 {
 	timer.update();
 
-	GetHitKeyStateAll(m_isPushKey);  // ‘S‚Ä‚ÌƒL[‚Ì“ü—Íó‘Ô‚ğ“¾‚é
+	GetHitKeyStateAll(m_isPushKey);  // å…¨ã¦ã®ã‚­ãƒ¼ã®å…¥åŠ›çŠ¶æ…‹ã‚’å¾—ã‚‹
 
 	for (int i = 0; i < 256; i++) {
-		if (m_isPushKey[i]) { // i”Ô‚ÌƒL[ƒR[ƒh‚É‘Î‰‚·‚éƒL[‚ª‰Ÿ‚³‚ê‚Ä‚¢‚½‚ç
-			m_frame[i]++;   // ‰ÁZ
+		if (m_isPushKey[i]) { // iç•ªã®ã‚­ãƒ¼ã‚³ãƒ¼ãƒ‰ã«å¯¾å¿œã™ã‚‹ã‚­ãƒ¼ãŒæŠ¼ã•ã‚Œã¦ã„ãŸã‚‰
+			m_frame[i]++;   // åŠ ç®—
 			m_time[i] += timer.getDeltaTime();
 		}
-		else {              // ‰Ÿ‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Î
-			m_frame[i] = 0; // 0‚É‚·‚é
+		else {              // æŠ¼ã•ã‚Œã¦ã„ãªã‘ã‚Œã°
+			m_frame[i] = 0; // 0ã«ã™ã‚‹
 			m_time[i] = 0;
 		}
 	}
@@ -59,11 +58,11 @@ bool InputDevice::Keyboard::getIsUpdate(int keyCode)
 		m_lastUpdateTime[keyCode] = 0;
 		return false;
 	}
-	else if (m_time[keyCode] && m_lastUpdateTime[keyCode] == 0) { //‰‰ñƒtƒŒ[ƒ€
+	else if (m_time[keyCode] && m_lastUpdateTime[keyCode] == 0) { //åˆå›ãƒ•ãƒ¬ãƒ¼ãƒ 
 		m_lastUpdateTime[keyCode] += m_interval * 3;
 		return true;
 	}
-	else if (m_time[keyCode] && //‰Ÿ‚µ‚Ä‚¢‚ÄAŸ‚Étrue‚ª•Ô‚é‚×‚«ŠÔ‚ğ’´‚¦‚Ä‚¢‚é
+	else if (m_time[keyCode] && //æŠ¼ã—ã¦ã„ã¦ã€æ¬¡ã«trueãŒè¿”ã‚‹ã¹ãæ™‚é–“ã‚’è¶…ãˆã¦ã„ã‚‹æ™‚
 		m_time[keyCode] >= m_lastUpdateTime[keyCode] + m_interval) {
 		m_lastUpdateTime[keyCode] += m_interval;
 		return true;
@@ -73,7 +72,7 @@ bool InputDevice::Keyboard::getIsUpdate(int keyCode)
 }
 
 
-//‚±‚±‚©‚çƒ}ƒEƒX
+//ã“ã“ã‹ã‚‰ãƒã‚¦ã‚¹
 InputDevice::Mouse::Mouse()
 {
 	for (auto& x : press) {
@@ -105,7 +104,7 @@ void InputDevice::Mouse::update()
 				phases[i] = IN_THE_MIDDLE;
 				if (!i) m_leftClickInitPosition = m_position;
 			}
-			else if (phases[i] != IN_THE_MIDDLE) {
+			else {
 				phases[i] = BEGAN;
 			}
 			press[i].first++;
@@ -114,11 +113,8 @@ void InputDevice::Mouse::update()
 		else {
 			if (phases[i] == ENDED) {
 				phases[i] = INVALID;
-				if (!i) {
-					Button::resetClick();
-				}
 			}
-			else if (phases[i] != INVALID) phases[i] = ENDED;
+			else phases[i] = ENDED;
 			press[i].first = 0;
 			press[i].second = 0;
 		}
@@ -135,11 +131,11 @@ void InputDevice::Touch::update()
 
 	for (int i = 0; i < num; i++) {
 		GetTouchInput(i, &x, &y, &id, NULL);
-		//‰æ–ÊŠO‚ÍC³
+		//ç”»é¢å¤–ã¯ä¿®æ­£
 		if (x < 0) x = 0;
-		else if (x > CommonSettings::WINDOW_WIDTH) x = static_cast<int>(CommonSettings::WINDOW_WIDTH);
+		else if (x > CommonSettings::WINDOW_WIDTH) x = CommonSettings::WINDOW_WIDTH;
 		if (y < 0) y = 0;
-		else if (y > CommonSettings::WINDOW_HEIGHT) y = static_cast<int>(CommonSettings::WINDOW_HEIGHT);
+		else if (y > CommonSettings::WINDOW_HEIGHT) y = CommonSettings::WINDOW_HEIGHT;
 		keys.insert(std::make_pair(id, std::make_pair(x, y)));
 	}
 
@@ -148,9 +144,9 @@ void InputDevice::Touch::update()
 			continue;
 		}
 
-		//Šù‘¶‚Ìƒ^ƒbƒ`‚©’²‚×‚é
+		//æ—¢å­˜ã®ã‚¿ãƒƒãƒã‹èª¿ã¹ã‚‹
 		auto it = keys.find(touch.first);
-		//‚ ‚é
+		//ã‚ã‚‹
 		if (it != keys.end()) {
 			int beforeX = touch.second.nowPos.first, beforeY = touch.second.nowPos.second;
 			int lastDeltaPosX = touch.second.deltaPos.first;
@@ -159,6 +155,12 @@ void InputDevice::Touch::update()
 			touch.second.nowPos.first = it->second.first;
 			touch.second.nowPos.second = it->second.second;
 
+			//æ–¹å‘è»¢æ›(å·¦å³ã®ã¿)
+			if ((lastDeltaPosX <= 0 && touch.second.deltaPos.first > 0)
+				|| (lastDeltaPosX >= 0 && touch.second.deltaPos.first < 0)) {
+				touch.second.turnPos = touch.second.nowPos;
+			}
+
 			touch.second.frame++;
 			touch.second.time += timer.getDeltaTime();
 			touch.second.phase = IN_THE_MIDDLE;
@@ -166,14 +168,16 @@ void InputDevice::Touch::update()
 			keys.erase(it);
 			continue;
 		}
-		else { //–³‚¢Bƒ^ƒbƒ`I—¹
+		else { //ç„¡ã„ã€‚ã‚¿ãƒƒãƒçµ‚äº†
 			touch.second.phase = ENDED;
 			newTouches.insert(std::make_pair(touch.first, std::move(touch.second)));
 		}
 	}
 
-	//c‚Á‚½key‚ÍV‹K
-	if (!num && keys.empty() && touches.empty()) firstTouchId = -1;
+	//ã‚¿ãƒƒãƒãŒç„¡ã‘ã‚Œã°æœ€åˆã®ã‚¿ãƒƒãƒã‚’åˆæœŸåŒ–
+	if (!num && newTouches.empty()) firstTouchId = -1;
+
+	//æ®‹ã£ãŸkeyã¯æ–°è¦
 	for (auto& key : keys) {
 		if (firstTouchId == -1) {
 			firstTouchId = key.first;
@@ -184,6 +188,4 @@ void InputDevice::Touch::update()
 	touches = std::move(newTouches);
 
 	firstTouch = touches.find(firstTouchId);
-	if (firstTouchId == -1) {
-	}
 }

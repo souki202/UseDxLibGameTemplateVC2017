@@ -1,11 +1,14 @@
 #pragma once
+#include <memory>
 #include <string>
 #include <algorithm>
 #include <vector>
 #include <array>
+#include "RefCounter.h"
 #include "DxLib.h"
 #include "Align.h"
 #include "CommonSettings.h"
+#include "NowLoadingWindow.h"
 
 #undef max
 #undef min
@@ -14,9 +17,16 @@ class Image {
 public:
 	Image();
 	Image(std::string filePath);
-	Image(std::string filePath, const Align::pos_type& position);
-	Image(int handle);
-	Image(int handle, const Align::pos_type& position);
+	Image(std::string filePath, const Point& position);
+	Image(const int& handle);
+	Image(int&& handle);
+	Image(const int& handle, const Point& position);
+
+	Image(const Image& rhs) { operator=(std::forward<const Image>(rhs)); };
+	Image(Image&& rhs) { operator=(std::forward<Image>(rhs)); };
+	Image& operator=(const Image& rhs);
+	Image& operator=(Image&& rhs);
+
 	~Image();
 
 	void init();
@@ -25,34 +35,38 @@ public:
 	void setAlign(const Align::Vertical& vAlign) { setAlign(hAlign, vAlign); };
 	void setAlign(const Align::Horizontal& hAlign, const Align::Vertical& vAlign);
 	void setImage(std::string filePath);
-	void setImage(int handle);
+	void setImage(const int& handle);
+	void setImage(int&& handle); //画像のリソース破棄はImage内で実行される
 	void setPosition(float x, float y) { setPosition(std::make_pair(x, y)); };
-	void setPosition(const Align::pos_type& position);
+	void setPosition(const Point& position);
 	void setScrollPosition(float x, float y) { setScrollPosition(std::make_pair(x, y)); };
-	void setScrollPosition(const Align::pos_type& scroll);
+	void setScrollPosition(const Point& scroll);
 	void setScale(float x, float y) { setScale(std::make_pair(x, y)); };
-	void setScale(const Align::pos_type& scale);
+	void setScale(const Point& scale);
 	void setAngle(float angle);
 	void addAngle(float delta) { setAngle(angle + delta); };
 	void setAlpha(int alpha) { this->alpha = alpha; }; //0~255
 	void recalcPosition();
 
 	const int& getHandle() const { return img; };
-	const Align::pos_type& getPosition() const { return rawPos; };
-	const Align::pos_type& getUpperLeftPosition() const { return pos; };
+	const Point& getPosition() { if (rawSize.first <= 0) calcImageSize(); return rawPos; };
+	const Point& getUpperLeftPosition() { if (rawSize.first <= 0) calcImageSize();  return pos; };
 	const std::array<std::pair<float, float>, 4>& getVertexes() const { return vertexes; };
-	Align::pos_type getPositionNonScroll() { return std::make_pair(pos.first - scrollPos.first, pos.second - scrollPos.second); };
-	const Align::pos_type& getImageSize() const { return rawSize; }; //�摜���̂܂܂̃T�C�Y��Ԃ��܂�
-	const Align::pos_type& getSize() const { return scaledSize; }; //�摜�����X�P�[����̃T�C�Y��Ԃ��܂�
+	Point getPositionNonScroll() { return std::make_pair(pos.first - scrollPos.first, pos.second - scrollPos.second); };
+	const Point& getImageSize() { if (rawSize.first <= 0) calcImageSize();  return rawSize; }; //画像そのままのサイズを返します
+	const Point& getSize() { if (rawSize.first <= 0) calcImageSize(); return scaledSize; }; //画像をリスケール後のサイズを返します
 	const float& getAngle() const { return angle; };
 
-	void draw();
-	void update();
+	virtual void draw();
+	void drawByVertex(const std::vector<Point>& vertex) const; //頂点の値は保存されない
+	virtual void update();
 
 	void setHasDefaultCollider(bool b) { hasDefaultCollider = b; };
 
 	bool getIsOutOfWindow();
+	void calcImageSize();
 
+	void setIsPremulti(bool b) { isPremulti = b; };
 protected:
 
 private:
@@ -74,4 +88,7 @@ private:
 	Align::Horizontal hAlign = Align::Horizontal::LEFT;
 	Align::Vertical vAlign = Align::Vertical::UPPER;
 	bool hasDefaultCollider = true;
+	bool isPremulti = false;
+
+	std::shared_ptr<RefCounter> counter; //ムーブされた場合は抜け殻になる.
 };

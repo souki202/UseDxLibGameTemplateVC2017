@@ -1,13 +1,16 @@
 #pragma once
+#include "DxLib.h"
 namespace CommonSettings {
-	//‰ğ‘œ“x
-	constexpr float WINDOW_WIDTH = 1280;
-	constexpr float WINDOW_HEIGHT = 720;
+	//è§£åƒåº¦
+	constexpr int WINDOW_WIDTH = 1280;
+	constexpr int WINDOW_HEIGHT = 720;
+	constexpr float WINDOW_WIDTHF = static_cast<float>(WINDOW_WIDTH);
+	constexpr float WINDOW_HEIGHTF = static_cast<float>(WINDOW_HEIGHT);
 
-	//fps(60ˆÈã‚Í‚’¼“¯Šú‚ğØ‚Á‚Ä‚­‚¾‚³‚¢B)
+	//fps(60ä»¥ä¸Šã¯å‚ç›´åŒæœŸã‚’åˆ‡ã£ã¦ãã ã•ã„ã€‚)
 	constexpr int FRAME_RATE = 60;
 
-	constexpr char* GAME_TITLE = "Game"; //Unicode•¶šƒZƒbƒg—˜—p‚Íwchar_t‚ÉB
+	constexpr const char* GAME_TITLE = "Game"; //Unicodeæ–‡å­—ã‚»ãƒƒãƒˆåˆ©ç”¨æ™‚ã¯wchar_tã«ã€‚
 };
 
 class Screen {
@@ -17,6 +20,7 @@ private:
 public:
 	static const int getScreen() { return screen; };
 	static void setScreen(int val) { DeleteGraph(screen); screen = val; };
+
 private:
 	static int screen;
 	static int width;
